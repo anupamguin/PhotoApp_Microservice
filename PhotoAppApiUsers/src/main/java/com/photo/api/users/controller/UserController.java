@@ -33,7 +33,7 @@ public class UserController {
 	
 	@Autowired
 	private UsersService usersService;
-	
+	 
 	@GetMapping("/status")
 	public String status() { // to access eureka will assign a random port on this port we can access
 		return "Working on port: "+env.getProperty("local.server.port");
