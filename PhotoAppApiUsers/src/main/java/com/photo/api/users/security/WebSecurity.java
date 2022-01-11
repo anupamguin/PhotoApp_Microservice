@@ -3,50 +3,44 @@ package com.photo.api.users.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import com.photo.api.users.service.UsersService;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurity extends WebSecurityConfigurerAdapter{
-	
-	
-	private Environment env;
-	
-	private UsersService usersService;
-	
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
+public class WebSecurity extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	JwtFilter jwtFilter;
 	
 	@Autowired
-	public WebSecurity(Environment env,UsersService usersService,BCryptPasswordEncoder bCryptPasswordEncoder) {
-		this.env=env;
-		this.usersService=usersService;
-		this.bCryptPasswordEncoder=bCryptPasswordEncoder;
-	}
+	private CustomUserDetailsService customUserDetailsService;
 	
+	
+	@Bean(name = BeanIds.AUTHENTICATION_MANAGER) // This is create bean for @Autowired AuthenticationManager
+	// in WelcomeController class
+	public AuthenticationManager authenticationManager() throws Exception {
+		return super.authenticationManager();
+	}
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
-		http.authorizeRequests().antMatchers("/users/**").permitAll()
-		.and()
-		.addFilter(getAuthenticationFilter());
+		http.authorizeRequests().antMatchers("/users/**").permitAll().and().exceptionHandling().and()
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		
+		http.addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
 	}
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(usersService).passwordEncoder(bCryptPasswordEncoder);
+		auth.userDetailsService(customUserDetailsService);
 	}
-	
-	private AuthenticationFilter getAuthenticationFilter() throws Exception {
-		AuthenticationFilter authenticationFilter=new AuthenticationFilter(usersService,env,authenticationManager());
-//		authenticationFilter.setAuthenticationManager(authenticationManager());
-		authenticationFilter.setFilterProcessesUrl("/authenticate");
-		return authenticationFilter;
-	}
+
 }
