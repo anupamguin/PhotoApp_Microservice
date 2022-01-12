@@ -51,7 +51,7 @@ public class UserController {
 		return "Working on port: "+env.getProperty("local.server.port");
 	}
 	
-	@PostMapping(value = "/add",
+	@PostMapping(value = "/register",
 			consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE},
 	 		produces ={MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<?> createUser(@Valid @RequestBody UserModel model,BindingResult result) {
