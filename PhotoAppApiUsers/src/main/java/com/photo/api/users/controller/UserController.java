@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,52 +35,53 @@ public class UserController {
 
 	@Autowired
 	private Environment env;
-	
+
 	@Autowired
 	private UsersService usersService;
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@Autowired
 	private JwtUtil jwtUtil;
-	 
+
 	@GetMapping("/status")
 	public String status() { // to access eureka will assign a random port on this port we can access
-		return "Working on port: "+env.getProperty("local.server.port");
+		return "Working on port: " + env.getProperty("local.server.port") + " , with Secret token: "
+				+ env.getProperty("token.secret")+"  Expire time: "+env.getProperty("token.expiration");
 	}
-	
-	@PostMapping(value = "/register",
-			consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE},
-	 		produces ={MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<?> createUser(@Valid @RequestBody UserModel model,BindingResult result) {
+
+	@PostMapping(value = "/register", consumes = { MediaType.APPLICATION_XML_VALUE,
+			MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_XML_VALUE,
+					MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> createUser(@Valid @RequestBody UserModel model, BindingResult result) {
 
 //Validation purpose
-		if(result.hasErrors()) {
-			Map<String,String> errorMap=new HashMap<String,String>();
-			for(FieldError error:result.getFieldErrors()) {
-				errorMap.put(error.getField(),error.getDefaultMessage());
+		if (result.hasErrors()) {
+			Map<String, String> errorMap = new HashMap<String, String>();
+			for (FieldError error : result.getFieldErrors()) {
+				errorMap.put(error.getField(), error.getDefaultMessage());
 			}
-			
-			return new ResponseEntity<Map<String,String>>(errorMap,HttpStatus.BAD_REQUEST); 
+
+			return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
 		}
-		
-		ModelMapper modelMapper=new ModelMapper();
+
+		ModelMapper modelMapper = new ModelMapper();
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-		
-		UserDto userDto=modelMapper.map(model, UserDto.class);
+
+		UserDto userDto = modelMapper.map(model, UserDto.class);
 		System.out.println(userDto);
-		UserDto returnValue= usersService.createUser(userDto);
-		
+		UserDto returnValue = usersService.createUser(userDto);
+
 		return ResponseEntity.status(HttpStatus.CREATED).body(returnValue);
 	}
-	
+
 	@PostMapping("/authenticate")
-	public ResponseEntity<?> authenticate(@Valid @RequestBody LoginRequestModel model) throws Exception{
-		
+	public ResponseEntity<?> authenticate(@Valid @RequestBody LoginRequestModel model) throws Exception {
+
 		try {
-			authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(model.getEmail(),model.getPassword()));
+			authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(model.getEmail(), model.getPassword()));
 		} catch (Exception e) {
 			throw new Exception("Username not found");
 		}
