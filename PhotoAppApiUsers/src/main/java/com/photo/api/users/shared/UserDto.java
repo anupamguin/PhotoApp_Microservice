@@ -1,9 +1,11 @@
 package com.photo.api.users.shared;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.photo.api.users.model.AlbumResponseModel;
 
 public class UserDto implements Serializable{
 
@@ -19,6 +21,16 @@ public class UserDto implements Serializable{
 	
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String encryptedPassword;
+	
+	private List<AlbumResponseModel> albums;
+
+	public List<AlbumResponseModel> getAlbums() {
+		return albums;
+	}
+
+	public void setAlbums(List<AlbumResponseModel> albums) {
+		this.albums = albums;
+	}
 
 	public String getFirstName() {
 		return firstName;
