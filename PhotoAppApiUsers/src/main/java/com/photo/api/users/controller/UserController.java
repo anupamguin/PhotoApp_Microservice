@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.photo.api.users.model.LoginRequestModel;
 import com.photo.api.users.model.LoginResponseModel;
 import com.photo.api.users.model.UserModel;
+import com.photo.api.users.model.UserResponseModel;
 import com.photo.api.users.security.JwtUtil;
 import com.photo.api.users.service.UsersService;
 import com.photo.api.users.shared.UserDto;
@@ -86,5 +88,14 @@ public class UserController {
 			throw new Exception("Username not found");
 		}
 		return ResponseEntity.ok(new LoginResponseModel(true, jwtUtil.generateToken(model.getEmail())));
+	}
+	
+	@GetMapping("/{userId}")
+	public ResponseEntity<?> getUser(@PathVariable("userId") String userId){
+		UserDto userDto=usersService.getUserByUserId(userId);
+		
+		UserResponseModel retureValue=new ModelMapper().map(userDto, UserResponseModel.class);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(retureValue);
 	}
 }
