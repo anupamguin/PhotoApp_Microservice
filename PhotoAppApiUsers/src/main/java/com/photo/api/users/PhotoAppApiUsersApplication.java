@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
+import com.photo.api.users.shared.FeignErrorDecoder;
+
+import feign.Logger;
+
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
@@ -28,4 +32,15 @@ public class PhotoAppApiUsersApplication {
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
+	
+	@Bean
+	Logger.Level feignLoggerLevel(){
+		return Logger.Level.FULL;
+	}
+	
+//	@Bean
+//	public FeignErrorDecoder feignError() {
+//		return new FeignErrorDecoder();
+//	}
+	// I use @Component in FeignErrorDecoder class that's don't need to bean 
 }

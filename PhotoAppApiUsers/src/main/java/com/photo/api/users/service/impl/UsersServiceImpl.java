@@ -19,11 +19,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.photo.api.users.data.AlbumsServiceClient;
 import com.photo.api.users.data.UserEntity;
 import com.photo.api.users.data.UsersRepository;
 import com.photo.api.users.model.AlbumResponseModel;
 import com.photo.api.users.service.UsersService;
 import com.photo.api.users.shared.UserDto;
+
+import feign.FeignException;
 
 @Service
 public class UsersServiceImpl implements UsersService {
@@ -36,13 +39,16 @@ public class UsersServiceImpl implements UsersService {
 	private UsersRepository usersRepository;
 
 	private RestTemplate restTemplate;
+	
+	private AlbumsServiceClient albumsServiceClient;
 
 	@Autowired
 	public UsersServiceImpl(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder,
-			RestTemplate restTemplate) {
+			RestTemplate restTemplate,AlbumsServiceClient albumsServiceClient) {
 		this.usersRepository = usersRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.restTemplate = restTemplate;
+		this.albumsServiceClient=albumsServiceClient;
 	}
 
 	@Override
@@ -93,21 +99,32 @@ public class UsersServiceImpl implements UsersService {
 
 		UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 
-		/* use RestTemplate to Call Albums microservices */
+/* use RestTemplate to Call Albums microservices */
 
-		ALBUM_URL = String.format(ALBUM_URL,userId);
-		System.out.println("Album URL: "+ALBUM_URL);
+//		ALBUM_URL = String.format(ALBUM_URL,userId);
+//		System.out.println("Album URL: "+ALBUM_URL);
+//
+//		ResponseEntity<List<AlbumResponseModel>> albumListResponse = null;
+//		try {
+//			albumListResponse = restTemplate.exchange(ALBUM_URL, HttpMethod.GET, null,
+//					new ParameterizedTypeReference<List<AlbumResponseModel>>() {
+//					});
+//		} catch (RestClientException e) {
+//			e.printStackTrace();
+//		}
+//		List<AlbumResponseModel> albumsList = albumListResponse.getBody();
 
-		ResponseEntity<List<AlbumResponseModel>> albumListResponse = null;
+		
+/* use Feign client to Call Albums microservices  */
+		
+		List<AlbumResponseModel> albumsList = null; 
 		try {
-			albumListResponse = restTemplate.exchange(ALBUM_URL, HttpMethod.GET, null,
-					new ParameterizedTypeReference<List<AlbumResponseModel>>() {
-					});
-		} catch (RestClientException e) {
-			e.printStackTrace();
+			albumsList =albumsServiceClient.userAlbums(userId);
+		} catch (FeignException e) {
+			System.err.println(e.getMessage());
 		}
-		List<AlbumResponseModel> albumsList = albumListResponse.getBody();
-
+		
+		
 		userDto.setAlbums(albumsList);
 
 		return userDto;
