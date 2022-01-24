@@ -125,8 +125,9 @@ public class UsersServiceImpl implements UsersService {
 //		}
 	  
 		/* We use FeignErrorDecoder.java where exception handled so no need inside try-catch */
+		System.err.println("Before calling albums microservice");
 		List<AlbumResponseModel> albumsList =albumsServiceClient.userAlbums(userId);
-				
+		System.err.println("After calling albums microservice");		
 		userDto.setAlbums(albumsList);
 
 		return userDto;

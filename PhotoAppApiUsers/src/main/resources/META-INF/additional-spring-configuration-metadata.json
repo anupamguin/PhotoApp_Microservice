@@ -13,5 +13,15 @@
     "name": "token.expiration",
     "type": "java.lang.String",
     "description": "A description for 'token.expiration'"
+  },
+  {
+    "name": "spring.sleuth.sampler.probability",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.sleuth.sampler.probability'"
+  },
+  {
+    "name": "spring.zipkin.sender.type",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.zipkin.sender.type'"
   }
 ]}
