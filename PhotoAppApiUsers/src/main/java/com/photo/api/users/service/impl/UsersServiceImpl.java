@@ -117,14 +117,16 @@ public class UsersServiceImpl implements UsersService {
 		
 /* use Feign client to Call Albums microservices  */
 		
-		List<AlbumResponseModel> albumsList = null; 
-		try {
-			albumsList =albumsServiceClient.userAlbums(userId);
-		} catch (FeignException e) {
-			System.err.println(e.getMessage());
-		}
-		
-		
+//		List<AlbumResponseModel> albumsList = null; 
+//		try {
+//			albumsList =albumsServiceClient.userAlbums(userId);
+//		} catch (FeignException e) {
+//			System.err.println(e.getMessage());
+//		}
+	  
+		/* We use FeignErrorDecoder.java where exception handled so no need inside try-catch */
+		List<AlbumResponseModel> albumsList =albumsServiceClient.userAlbums(userId);
+				
 		userDto.setAlbums(albumsList);
 
 		return userDto;

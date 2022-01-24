@@ -13,9 +13,10 @@ public class FeignErrorDecoder implements ErrorDecoder {
 	@Override
 	public Exception decode(String methodKey, Response response) {
 // here methodKey is the Feign client Interface name on which error Occur
+		System.out.println(response+"    :mode:  "+methodKey);
 		switch (response.status()) {
 		case 400:
-			// Do SOmething code here
+			System.out.println("400 came here");
 			break;
 		case 404:
 			if (methodKey.contains("userAlbums")) {
@@ -24,8 +25,10 @@ public class FeignErrorDecoder implements ErrorDecoder {
 						"Anupam ERROR: " + response.reason());
 			}
 			break;
+		case 500:
+			System.out.println("Here 500 came");
 		default:
-			return new Exception(response.reason());
+			return new Exception("Hiiii default"+response.reason());
 		}
 		return null;
 	}

@@ -1,8 +1,10 @@
 package com.photo.api.users.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,6 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
+	@Value("${mylaptop.ip}")
+	private String MYLAPTOP_IP;
+	
 	@Autowired
 	JwtFilter jwtFilter;
 	
@@ -32,6 +37,10 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
+		http.authorizeRequests().antMatchers(HttpMethod.GET,"/actuator/health")
+		.hasIpAddress(MYLAPTOP_IP)
+		.antMatchers(HttpMethod.GET,"/actuator/circuitbreakerevents").hasIpAddress(MYLAPTOP_IP);
+		
 		http.authorizeRequests().antMatchers("/users/authenticate","/users/register").permitAll()
 		.anyRequest().authenticated()
 		.and().exceptionHandling()
